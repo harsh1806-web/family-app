@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #43cea2, #185a9d);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 300px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #43cea2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2bbf90;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Create Family Account</h2>
+
+  <input id="name" placeholder="Family Name">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="register()">Register</button>
+</div>
+
+<script>
+async function register(){
+  await fetch('/register',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      family_name:name.value,
+      email:email.value,
+      password:password.value
+    })
+  });
+
+  alert("Registered successfully!");
+  window.location = "login.html";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f5f7fb;
+}
+
+/* NAVBAR */
+.navbar {
+  background: #667eea;
+  color: white;
+  padding: 15px;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar button {
+  background: red;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 6px;
+}
+
+/* CONTAINER */
+.container {
+  padding: 15px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+/* INPUTS */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* BUTTON */
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+/* MEMBER CARD */
+.member {
+  background: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  border-left: 5px solid #667eea;
+}
+
+.member h3 {
+  margin: 0;
+}
+
+.tag {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div>👨‍👩‍👧 Family App</div>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+<!-- ADD MEMBER -->
+<div class="card">
+<h3>Add Member</h3>
+
+<input id="name" placeholder="Full Name">
+<input id="age" placeholder="Age">
+
+<input id="phone" placeholder="Phone">
+<input id="address" placeholder="Address">
+<input id="business_address" placeholder="Business Address">
+<input id="education" placeholder="Education">
+<input id="hobbies" placeholder="Hobbies">
+
+<select id="relation">
+<option>Head</option>
+<option>Spouse</option>
+<option>Son</option>
+<option>Daughter</option>
+</select>
+
+<select id="parent">
+<option value="">No Parent</option>
+</select>
+
+<button onclick="addMember()">➕ Add Member</button>
+<button onclick="loadMembers()">📋 View Members</button>
+
+</div>
+
+<!-- MEMBERS -->
+<div class="card">
+<h3>Family Members</h3>
+<div id="list"></div>
+</div>
+
+</div>
+
+<script>
+
+// ADD MEMBER
+async function addMember(){
+  await fetch('/add-member',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':localStorage.getItem("token")
+    },
+    body: JSON.stringify({
+      name: name.value,
+      age: age.value,
+      relation: relation.value,
+      parent_id: parent.value || null,
+      phone: phone.value,
+      address: address.value,
+      business_address: business_address.value,
+      education: education.value,
+      hobbies: hobbies.value
+    })
+  });
+
+  alert("Member Added");
+  loadParentOptions();
+}
+
+// LOAD MEMBERS
+async function loadMembers(){
+  const res = await fetch('/members',{
+    headers:{ 'Authorization':localStorage.getItem("token") }
+  });
+
+  const data = await res.json();
+
+  let html = "";
+
+  data.forEach(m => {
+    html += `
+      <div class="member">
+        <h3>${m.name}</h3>
+        <div class="tag">${m.relation}</div>
+        <p>Age: ${m.age}</p>
+        <p>📞 ${m.phone || "-"}</p>
+        <p>🏠 ${m.address || "-"}</p>
+        <p>🏢 ${m.business_address || "-"}</p>
+        <p>🎓 ${m.education || "-"}</p>
+        <p>🎯 ${m.hobbies || "-"}</p>
+      </div>
+    `;
+  });
+
+  list.innerHTML = html;
+}
+
+// LOAD PARENT OPTIONS
+async function loadParentOptions(){
+  const res = await fetch('/members',{
+    headers:{ 'Authorization':localStorage.getItem("token") }
+  });
+
+  const data = await res.json();
+
+  let options = `<option value="">No Parent</option>`;
+
+  data.forEach(m=>{
+    options += `<option value="${m.id}">${m.name}</option>`;
+  });
+
+  parent.innerHTML = options;
+}
+
+// LOGOUT
+function logout(){
+  localStorage.removeItem("token");
+  window.location = "login.html";
+}
+
+// ON LOAD
+window.onload = loadParentOptions;
+
+</script>
+
+</body>
+</html>
