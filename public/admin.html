@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<h2>All Families</h2>
+<div id="families"></div>
+
+<h2>All Members</h2>
+<div id="members"></div>
+
+<script>
+fetch('/admin/families')
+.then(res => res.json())
+.then(data => {
+  let html = "";
+  data.forEach(f => {
+    html += `<p>${f.family_name} (${f.email})</p>`;
+  });
+  document.getElementById("families").innerHTML = html;
+});
+
+fetch('/admin/members')
+.then(res => res.json())
+.then(data => {
+  let html = "";
+  data.forEach(m => {
+    html += `<p>${m.name} - ${m.relation}</p>`;
+  });
+  document.getElementById("members").innerHTML = html;
+});
+</script>
+
+</body>
+</html>

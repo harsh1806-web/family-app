@@ -3,15 +3,15 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// ================= DB CONNECTION =================
+// ================= DATABASE =================
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -21,47 +21,76 @@ const db = mysql.createConnection({
 
 db.connect(err => {
   if (err) {
-    console.log("Database error:", err);
+    console.log("DB Error:", err);
   } else {
-    console.log("Database Connected ✅");
+    console.log("Database Connected");
   }
 });
 
-// ================= DEFAULT ROUTE =================
+// ================= HOME =================
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 // ================= REGISTER =================
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
   const { family_name, email, password } = req.body;
 
-  const sql = "INSERT INTO families (family_name, email, password) VALUES (?, ?, ?)";
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  db.query(sql, [family_name, email, password], (err, result) => {
-    if (err) return res.send(err);
-    res.send({ message: "Registered successfully" });
-  });
+    db.query(
+      "INSERT INTO families (family_name, email, password) VALUES (?, ?, ?)",
+      [family_name, email, hashedPassword],
+      (err) => {
+        if (err) return res.json({ success: false });
+        res.json({ success: true });
+      }
+    );
+  } catch (err) {
+    res.json({ success: false });
+  }
 });
 
-// ================= LOGIN =================
+// ================= LOGIN (FIXED) =================
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
-  const sql = "SELECT * FROM families WHERE email = ? AND password = ?";
+  db.query(
+    "SELECT * FROM families WHERE email = ?",
+    [email],
+    async (err, result) => {
 
-  db.query(sql, [email, password], (err, result) => {
-    if (err) return res.send(err);
+      if (err) return res.send(err);
 
-    if (result.length > 0) {
-      res.send({
-        message: "Login success",
-        user: result[0]
+      // ❌ USER NOT FOUND
+      if (result.length === 0) {
+        return res.json({
+          success: false,
+          message: "User not found"
+        });
+      }
+
+      const user = result[0];
+
+      // 🔐 PASSWORD CHECK
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      // ❌ WRONG PASSWORD
+      if (!isMatch) {
+        return res.json({
+          success: false,
+          message: "Wrong password"
+        });
+      }
+
+      // ✅ SUCCESS
+      res.json({
+        success: true,
+        user
       });
-    } else {
-      res.send({ message: "Invalid credentials" });
     }
-  });
+  );
 });
 
 // ================= ADD MEMBER =================
@@ -79,55 +108,51 @@ app.post('/add-member', (req, res) => {
     hobbies
   } = req.body;
 
-  const sql = `
-    INSERT INTO members 
+  db.query(
+    `INSERT INTO members 
     (family_id, name, age, relation, parent_id, phone, address, business_address, education, hobbies)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-
-  db.query(sql, [
-    family_id,
-    name,
-    age,
-    relation,
-    parent_id,
-    phone,
-    address,
-    business_address,
-    education,
-    hobbies
-  ], (err, result) => {
-    if (err) return res.send(err);
-    res.send({ message: "Member added" });
-  });
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      family_id,
+      name,
+      age,
+      relation,
+      parent_id,
+      phone,
+      address,
+      business_address,
+      education,
+      hobbies
+    ],
+    (err) => {
+      if (err) return res.send(err);
+      res.json({ success: true });
+    }
+  );
 });
 
 // ================= GET MEMBERS =================
 app.get('/members/:family_id', (req, res) => {
-  const family_id = req.params.family_id;
-
-  const sql = "SELECT * FROM members WHERE family_id = ?";
-
-  db.query(sql, [family_id], (err, result) => {
-    if (err) return res.send(err);
-    res.send(result);
-  });
+  db.query(
+    "SELECT * FROM members WHERE family_id = ?",
+    [req.params.family_id],
+    (err, result) => {
+      if (err) return res.send(err);
+      res.send(result);
+    }
+  );
 });
 
-// ================= ADMIN: VIEW ALL =================
+// ================= ADMIN =================
 app.get('/admin/families', (req, res) => {
-  const sql = "SELECT * FROM families";
-
-  db.query(sql, (err, result) => {
+  db.query("SELECT * FROM families", (err, result) => {
     if (err) return res.send(err);
     res.send(result);
   });
 });
 
 app.get('/admin/members', (req, res) => {
-  const sql = "SELECT * FROM members";
-
-  db.query(sql, (err, result) => {
+  db.query("SELECT * FROM members", (err, result) => {
     if (err) return res.send(err);
     res.send(result);
   });

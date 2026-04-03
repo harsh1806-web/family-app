@@ -1,221 +1,165 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Family App</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      display: flex;
+      background: #f4f6f9;
+    }
 
-<style>
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f5f7fb;
-}
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: #1e293b;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+    }
 
-/* NAVBAR */
-.navbar {
-  background: #667eea;
-  color: white;
-  padding: 15px;
-  font-size: 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    .sidebar h2 {
+      margin-bottom: 30px;
+    }
 
-.navbar button {
-  background: red;
-  border: none;
-  padding: 8px 12px;
-  color: white;
-  border-radius: 6px;
-}
+    .sidebar button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border: none;
+      background: #334155;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+    }
 
-/* CONTAINER */
-.container {
-  padding: 15px;
-}
+    .sidebar button:hover {
+      background: #475569;
+    }
 
-/* CARD */
-.card {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-}
+    /* Main */
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
 
-/* INPUTS */
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
 
-/* BUTTON */
-button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 8px;
-}
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
 
-/* MEMBER CARD */
-.member {
-  background: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 10px;
-  border-left: 5px solid #667eea;
-}
-
-.member h3 {
-  margin: 0;
-}
-
-.tag {
-  display: inline-block;
-  background: #667eea;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-size: 12px;
-}
-</style>
-
+    .member {
+      background: #f1f5f9;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-  <div>👨‍👩‍👧 Family App</div>
-  <button onclick="logout()">Logout</button>
+<div class="sidebar">
+  <h2>Family App</h2>
+  <button onclick="showSection('add')">Add Member</button>
+  <button onclick="showSection('list')">View Members</button>
 </div>
 
-<div class="container">
+<div class="main">
 
-<!-- ADD MEMBER -->
-<div class="card">
-<h3>Add Member</h3>
+  <!-- ADD MEMBER -->
+  <div id="add" class="card">
+    <h3>Add Member</h3>
 
-<input id="name" placeholder="Full Name">
-<input id="age" placeholder="Age">
+    <input id="name" placeholder="Name">
+    <input id="age" placeholder="Age">
 
-<input id="phone" placeholder="Phone">
-<input id="address" placeholder="Address">
-<input id="business_address" placeholder="Business Address">
-<input id="education" placeholder="Education">
-<input id="hobbies" placeholder="Hobbies">
+    <select id="relation">
+      <option>Head</option>
+      <option>Spouse</option>
+      <option>Son</option>
+      <option>Daughter</option>
+    </select>
 
-<select id="relation">
-<option>Head</option>
-<option>Spouse</option>
-<option>Son</option>
-<option>Daughter</option>
-</select>
+    <input id="phone" placeholder="Phone">
+    <input id="address" placeholder="Address">
+    <input id="business" placeholder="Business Address">
+    <input id="education" placeholder="Education">
+    <input id="hobbies" placeholder="Hobbies">
 
-<select id="parent">
-<option value="">No Parent</option>
-</select>
+    <button onclick="addMember()">Add</button>
+  </div>
 
-<button onclick="addMember()">➕ Add Member</button>
-<button onclick="loadMembers()">📋 View Members</button>
-
-</div>
-
-<!-- MEMBERS -->
-<div class="card">
-<h3>Family Members</h3>
-<div id="list"></div>
-</div>
+  <!-- MEMBERS LIST -->
+  <div id="list" class="card" style="display:none;">
+    <h3>Members</h3>
+    <div id="members"></div>
+  </div>
 
 </div>
 
 <script>
+const user = JSON.parse(localStorage.getItem("user"));
 
-// ADD MEMBER
-async function addMember(){
-  await fetch('/add-member',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':localStorage.getItem("token")
-    },
+function showSection(id) {
+  document.getElementById("add").style.display = "none";
+  document.getElementById("list").style.display = "none";
+  document.getElementById(id).style.display = "block";
+
+  if (id === "list") loadMembers();
+}
+
+function addMember() {
+  fetch("/add-member", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      name: name.value,
-      age: age.value,
-      relation: relation.value,
-      parent_id: parent.value || null,
-      phone: phone.value,
-      address: address.value,
-      business_address: business_address.value,
-      education: education.value,
-      hobbies: hobbies.value
+      family_id: user.id,
+      name: document.getElementById("name").value,
+      age: document.getElementById("age").value,
+      relation: document.getElementById("relation").value,
+      parent_id: 0,
+      phone: document.getElementById("phone").value,
+      address: document.getElementById("address").value,
+      business_address: document.getElementById("business").value,
+      education: document.getElementById("education").value,
+      hobbies: document.getElementById("hobbies").value
     })
-  });
-
-  alert("Member Added");
-  loadParentOptions();
+  }).then(res => res.json())
+    .then(() => alert("Member Added"));
 }
 
-// LOAD MEMBERS
-async function loadMembers(){
-  const res = await fetch('/members',{
-    headers:{ 'Authorization':localStorage.getItem("token") }
-  });
-
-  const data = await res.json();
-
-  let html = "";
-
-  data.forEach(m => {
-    html += `
-      <div class="member">
-        <h3>${m.name}</h3>
-        <div class="tag">${m.relation}</div>
-        <p>Age: ${m.age}</p>
-        <p>📞 ${m.phone || "-"}</p>
-        <p>🏠 ${m.address || "-"}</p>
-        <p>🏢 ${m.business_address || "-"}</p>
-        <p>🎓 ${m.education || "-"}</p>
-        <p>🎯 ${m.hobbies || "-"}</p>
-      </div>
-    `;
-  });
-
-  list.innerHTML = html;
+function loadMembers() {
+  fetch(`/members/${user.id}`)
+    .then(res => res.json())
+    .then(data => {
+      let html = "";
+      data.forEach(m => {
+        html += `
+          <div class="member">
+            <b>${m.name}</b><br>
+            Age: ${m.age}<br>
+            Relation: ${m.relation}<br>
+            Phone: ${m.phone}<br>
+            Address: ${m.address}<br>
+            Education: ${m.education}<br>
+            Hobbies: ${m.hobbies}
+          </div>
+        `;
+      });
+      document.getElementById("members").innerHTML = html;
+    });
 }
-
-// LOAD PARENT OPTIONS
-async function loadParentOptions(){
-  const res = await fetch('/members',{
-    headers:{ 'Authorization':localStorage.getItem("token") }
-  });
-
-  const data = await res.json();
-
-  let options = `<option value="">No Parent</option>`;
-
-  data.forEach(m=>{
-    options += `<option value="${m.id}">${m.name}</option>`;
-  });
-
-  parent.innerHTML = options;
-}
-
-// LOGOUT
-function logout(){
-  localStorage.removeItem("token");
-  window.location = "login.html";
-}
-
-// ON LOAD
-window.onload = loadParentOptions;
-
 </script>
 
 </body>
