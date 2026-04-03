@@ -60,6 +60,25 @@ app.post("/register", (req, res) => {
     });
   });
 });
+// ✅ LOGIN API
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+
+  db.query(sql, [email, password], (err, result) => {
+    if (err) {
+      console.log("❌ Login error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (result.length > 0) {
+      res.json({ message: "✅ Login successful" });
+    } else {
+      res.status(401).json({ message: "❌ Invalid email or password" });
+    }
+  });
+});
 
 // ✅ START SERVER
 const PORT = process.env.PORT || 10000;

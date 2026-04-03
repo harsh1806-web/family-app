@@ -1,9 +1,11 @@
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const name = document.querySelector("input[name='name']").value;
-  const email = document.querySelector("input[name='email']").value;
-  const password = document.querySelector("input[name='password']").value;
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  console.log("Sending:", { name, email, password }); // 👈 DEBUG
 
   try {
     const res = await fetch("/register", {
@@ -16,13 +18,15 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
 
     const data = await res.json();
 
+    console.log("Response:", data); // 👈 DEBUG
     alert(data.message);
 
     if (res.ok) {
       window.location.href = "login.html";
     }
+
   } catch (err) {
-    console.error(err);
+    console.error("ERROR:", err);
     alert("Something went wrong");
   }
 });
