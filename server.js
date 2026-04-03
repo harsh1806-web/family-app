@@ -1,166 +1,75 @@
-const express = require('express');
-const mysql = require('mysql2');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-const bcrypt = require('bcrypt');
+const express = require("express");
+const mysql = require("mysql");
+const cors = require("cors");
 
 const app = express();
 
+// ✅ Middleware
 app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.json());
 
-// ================= DATABASE =================
+// ✅ Railway MySQL connection (PASTE YOUR VALUES)
 const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME
+  host: "mysql.railway.internal",
+  user: "root",
+  password: "pzeUQzqCkHPWUYazrzQrFjMGjQLewuFo",
+  database: "railway",
+  port: PASTE_MYSQLPORT_HERE, // ⚠️ number (no quotes)
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-db.connect(err => {
+// ✅ Connect to DB
+db.connect((err) => {
   if (err) {
-    console.log("DB Error:", err);
+    console.log("❌ DB connection failed:", err);
   } else {
-    console.log("Database Connected");
+    console.log("✅ Connected to Railway MySQL");
   }
 });
 
-// ================= HOME =================
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+// ✅ TEST ROUTE
+app.get("/", (req, res) => {
+  res.send("Server is running 🚀");
 });
 
-// ================= REGISTER =================
-app.post('/register', async (req, res) => {
-  const { family_name, email, password } = req.body;
+// ✅ REGISTER API
+app.post("/register", (req, res) => {
+  const { name, email, password } = req.body;
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  console.log("Incoming data:", req.body);
 
-    db.query(
-      "INSERT INTO families (family_name, email, password) VALUES (?, ?, ?)",
-      [family_name, email, hashedPassword],
-      (err) => {
-        if (err) return res.json({ success: false });
-        res.json({ success: true });
-      }
-    );
-  } catch (err) {
-    res.json({ success: false });
-  }
-});
+  // 🔍 Check if email exists
+  const checkSql = "SELECT * FROM users WHERE email = ?";
 
-// ================= LOGIN (FIXED) =================
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
+  db.query(checkSql, [email], (err, result) => {
+    if (err) {
+      console.log("❌ Check error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
 
-  db.query(
-    "SELECT * FROM families WHERE email = ?",
-    [email],
-    async (err, result) => {
+    if (result.length > 0) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
 
-      if (err) return res.send(err);
+    // ✅ Insert user
+    const insertSql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
 
-      // ❌ USER NOT FOUND
-      if (result.length === 0) {
-        return res.json({
-          success: false,
-          message: "User not found"
-        });
+    db.query(insertSql, [name, email, password], (err, result) => {
+      if (err) {
+        console.log("❌ Insert error:", err);
+        return res.status(500).json({ message: "Insert failed" });
       }
 
-      const user = result[0];
-
-      // 🔐 PASSWORD CHECK
-      const isMatch = await bcrypt.compare(password, user.password);
-
-      // ❌ WRONG PASSWORD
-      if (!isMatch) {
-        return res.json({
-          success: false,
-          message: "Wrong password"
-        });
-      }
-
-      // ✅ SUCCESS
-      res.json({
-        success: true,
-        user
-      });
-    }
-  );
-});
-
-// ================= ADD MEMBER =================
-app.post('/add-member', (req, res) => {
-  const {
-    family_id,
-    name,
-    age,
-    relation,
-    parent_id,
-    phone,
-    address,
-    business_address,
-    education,
-    hobbies
-  } = req.body;
-
-  db.query(
-    `INSERT INTO members 
-    (family_id, name, age, relation, parent_id, phone, address, business_address, education, hobbies)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      family_id,
-      name,
-      age,
-      relation,
-      parent_id,
-      phone,
-      address,
-      business_address,
-      education,
-      hobbies
-    ],
-    (err) => {
-      if (err) return res.send(err);
-      res.json({ success: true });
-    }
-  );
-});
-
-// ================= GET MEMBERS =================
-app.get('/members/:family_id', (req, res) => {
-  db.query(
-    "SELECT * FROM members WHERE family_id = ?",
-    [req.params.family_id],
-    (err, result) => {
-      if (err) return res.send(err);
-      res.send(result);
-    }
-  );
-});
-
-// ================= ADMIN =================
-app.get('/admin/families', (req, res) => {
-  db.query("SELECT * FROM families", (err, result) => {
-    if (err) return res.send(err);
-    res.send(result);
+      res.json({ message: "✅ User registered successfully" });
+    });
   });
 });
 
-app.get('/admin/members', (req, res) => {
-  db.query("SELECT * FROM members", (err, result) => {
-    if (err) return res.send(err);
-    res.send(result);
-  });
-});
-
-// ================= SERVER =================
-const PORT = process.env.PORT || 3000;
+// ✅ START SERVER (Render uses 10000)
+const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

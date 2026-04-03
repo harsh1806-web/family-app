@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Register</title>
   <style>
     body {
       font-family: Arial;
-      background: linear-gradient(135deg, #43cea2, #185a9d);
+      background: linear-gradient(to right, #00c6ff, #0072ff);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
 
     .box {
@@ -30,10 +30,14 @@
     button {
       width: 100%;
       padding: 10px;
-      background: #43cea2;
+      background: #28a745;
       color: white;
       border: none;
       cursor: pointer;
+    }
+
+    button:hover {
+      background: #218838;
     }
   </style>
 </head>
@@ -43,39 +47,18 @@
 <div class="box">
   <h2>Register</h2>
 
-  <input id="family_name" placeholder="Family Name">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+  <form id="registerForm">
+    <input type="text" id="name" placeholder="Family Name" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
 
-  <button onclick="register()">Register</button>
+    <button type="submit">Register</button>
+  </form>
 
   <p>Already have account? <a href="login.html">Login</a></p>
 </div>
 
-<script>
-function register() {
-  fetch("/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      family_name: document.getElementById("family_name").value,
-      email: document.getElementById("email").value,
-      password: document.getElementById("password").value
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      alert("Registered successfully!");
-      window.location = "login.html";
-    } else {
-      alert("Error registering");
-    }
-  });
-}
-</script>
+<script src="script.js"></script>
 
 </body>
 </html>
