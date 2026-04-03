@@ -14,7 +14,7 @@ const db = mysql.createConnection({
   user: "root",
   password: "pzeUQzqCkHPWUYazrzQrFjMGjQLewuFo",
   database: "railway",
-  port: PASTE_MYSQLPORT_HERE, // ⚠️ number (no quotes)
+  port: _3306, // ⚠️ number (no quotes)
   ssl: {
     rejectUnauthorized: false
   }
