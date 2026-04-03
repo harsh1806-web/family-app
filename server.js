@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// DATABASE (ENV)
+// DATABASE
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -19,7 +19,7 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-db.connect(err => {
+db.connect((err) => {
   if (err) {
     console.log("DB Error:", err);
   } else {
@@ -56,6 +56,7 @@ app.post('/login', (req, res) => {
       if (result.length === 0) return res.send("User not found");
 
       const user = result[0];
+
       const match = await bcrypt.compare(password, user.password);
 
       if (!match) return res.send("Wrong password");
@@ -73,6 +74,7 @@ app.post('/login', (req, res) => {
 // AUTH
 function auth(req, res, next) {
   const token = req.headers['authorization'];
+
   if (!token) return res.send("No token");
 
   jwt.verify(token, "secret", (err, user) => {
@@ -131,7 +133,7 @@ app.get('/members', auth, (req, res) => {
   );
 });
 
-// ADMIN: ALL FAMILIES
+// ADMIN ROUTES
 app.get('/admin/families', auth, adminOnly, (req, res) => {
   db.query("SELECT * FROM families", (err, result) => {
     if (err) return res.send(err);
@@ -139,7 +141,6 @@ app.get('/admin/families', auth, adminOnly, (req, res) => {
   });
 });
 
-// ADMIN: ALL MEMBERS
 app.get('/admin/members', auth, adminOnly, (req, res) => {
   db.query("SELECT * FROM members", (err, result) => {
     if (err) return res.send(err);
@@ -147,7 +148,6 @@ app.get('/admin/members', auth, adminOnly, (req, res) => {
   });
 });
 
-// ADMIN: MEMBERS OF ONE FAMILY
 app.get('/admin/family-members/:id', auth, adminOnly, (req, res) => {
   db.query(
     "SELECT * FROM members WHERE family_id = ?",
@@ -159,7 +159,7 @@ app.get('/admin/family-members/:id', auth, adminOnly, (req, res) => {
   );
 });
 
-// START SERVER (IMPORTANT FOR RENDER)
+// START SERVER
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port", PORT);
