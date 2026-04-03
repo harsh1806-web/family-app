@@ -9,16 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 // ✅ Railway MySQL connection (PASTE YOUR VALUES)
-const db = mysql.createConnection({
-  host: "mysql.railway.internal",
-  user: "root",
-  password: "pzeUQzqCkHPWUYazrzQrFjMGjQLewuFo",
-  database: "railway",
-  port: _3306, // ⚠️ number (no quotes)
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+const db = mysql.createConnection("mysql://root:pzeUQzqCkHPWUYazrzQrFjMGjQLewuFo@junction.proxy.rlwy.net:30814/railway");
 
 // ✅ Connect to DB
 db.connect((err) => {
