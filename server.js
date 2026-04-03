@@ -11,17 +11,20 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// DB CONNECTION
+// DATABASE (ENV)
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'family_db'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME
 });
 
 db.connect(err => {
-  if (err) throw err;
-  console.log("Database Connected");
+  if (err) {
+    console.log("DB Error:", err);
+  } else {
+    console.log("Database Connected");
+  }
 });
 
 // REGISTER
@@ -33,7 +36,10 @@ app.post('/register', async (req, res) => {
   db.query(
     "INSERT INTO families (family_name, email, password) VALUES (?, ?, ?)",
     [family_name, email, hashed],
-    () => res.send("Registered")
+    (err) => {
+      if (err) return res.send(err);
+      res.send("Registered");
+    }
   );
 });
 
@@ -46,6 +52,7 @@ app.post('/login', (req, res) => {
     [email],
     async (err, result) => {
 
+      if (err) return res.send(err);
       if (result.length === 0) return res.send("User not found");
 
       const user = result[0];
@@ -81,7 +88,7 @@ function adminOnly(req, res, next) {
   next();
 }
 
-// ADD MEMBER (UPDATED FULL DETAILS)
+// ADD MEMBER
 app.post('/add-member', auth, (req, res) => {
 
   const { 
@@ -105,27 +112,39 @@ app.post('/add-member', auth, (req, res) => {
       education,
       hobbies
     ],
-    () => res.send("Member Added")
+    (err) => {
+      if (err) return res.send(err);
+      res.send("Member Added");
+    }
   );
 });
 
-// GET FAMILY MEMBERS
+// GET MEMBERS
 app.get('/members', auth, (req, res) => {
   db.query(
     "SELECT * FROM members WHERE family_id = ?",
     [req.user.family_id],
-    (err, result) => res.send(result)
+    (err, result) => {
+      if (err) return res.send(err);
+      res.send(result);
+    }
   );
 });
 
 // ADMIN: ALL FAMILIES
 app.get('/admin/families', auth, adminOnly, (req, res) => {
-  db.query("SELECT * FROM families", (err, result) => res.send(result));
+  db.query("SELECT * FROM families", (err, result) => {
+    if (err) return res.send(err);
+    res.send(result);
+  });
 });
 
 // ADMIN: ALL MEMBERS
 app.get('/admin/members', auth, adminOnly, (req, res) => {
-  db.query("SELECT * FROM members", (err, result) => res.send(result));
+  db.query("SELECT * FROM members", (err, result) => {
+    if (err) return res.send(err);
+    res.send(result);
+  });
 });
 
 // ADMIN: MEMBERS OF ONE FAMILY
@@ -133,11 +152,15 @@ app.get('/admin/family-members/:id', auth, adminOnly, (req, res) => {
   db.query(
     "SELECT * FROM members WHERE family_id = ?",
     [req.params.id],
-    (err, result) => res.send(result)
+    (err, result) => {
+      if (err) return res.send(err);
+      res.send(result);
+    }
   );
 });
 
-// START SERVER
+// START SERVER (IMPORTANT FOR RENDER)
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Server running"));
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
