@@ -1,6 +1,7 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
@@ -8,8 +9,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Railway MySQL connection (PASTE YOUR VALUES)
-const db = mysql.createConnection("mysql://root:pzeUQzqCkHPWUYazrzQrFjMGjQLewuFo@junction.proxy.rlwy.net:30814/railway");
+// ✅ Serve static files
+app.use(express.static(path.join(__dirname, "public")));
+
+// ✅ Railway MySQL connection
+const db = mysql.createConnection(
+  "mysql://root:pzeUQzqCkHPWUYazrzQrFjMGjQLewuFo@junction.proxy.rlwy.net:30814/railway"
+);
 
 // ✅ Connect to DB
 db.connect((err) => {
@@ -20,18 +26,15 @@ db.connect((err) => {
   }
 });
 
-// ✅ TEST ROUTE
+// ✅ Show register page
 app.get("/", (req, res) => {
-  res.send("Server is running 🚀");
+  res.sendFile(path.join(__dirname, "public", "register.html"));
 });
 
 // ✅ REGISTER API
 app.post("/register", (req, res) => {
   const { name, email, password } = req.body;
 
-  console.log("Incoming data:", req.body);
-
-  // 🔍 Check if email exists
   const checkSql = "SELECT * FROM users WHERE email = ?";
 
   db.query(checkSql, [email], (err, result) => {
@@ -44,8 +47,8 @@ app.post("/register", (req, res) => {
       return res.status(400).json({ message: "Email already exists" });
     }
 
-    // ✅ Insert user
-    const insertSql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+    const insertSql =
+      "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
 
     db.query(insertSql, [name, email, password], (err, result) => {
       if (err) {
@@ -58,7 +61,7 @@ app.post("/register", (req, res) => {
   });
 });
 
-// ✅ START SERVER (Render uses 10000)
+// ✅ START SERVER
 const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, () => {
