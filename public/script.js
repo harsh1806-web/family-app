@@ -19,10 +19,12 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
     const data = await res.json();
 
     console.log("Response:", data); // 👈 DEBUG
-    alert(data.message);
-
     if (res.ok) {
-      window.location.href = "login.html";
+  alert("Login successful");
+  window.location.href = "/dashboard.html";
+} else {
+  alert(data.message);
+}
     }
 
   } catch (err) {
