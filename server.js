@@ -69,13 +69,19 @@ app.post("/login", (req, res) => {
   db.query(sql, [email, password], (err, result) => {
     if (err) {
       console.log("❌ Login error:", err);
-      return res.status(500).json({ message: "Database error" });
+      return res.json({ success: false });
     }
 
     if (result.length > 0) {
-      res.json({ message: "✅ Login successful" });
+      res.json({
+        success: true,
+        user: result[0]   // ✅ MUST RETURN USER
+      });
     } else {
-      res.status(401).json({ message: "❌ Invalid email or password" });
+      res.json({
+        success: false,
+        message: "Invalid credentials"
+      });
     }
   });
 });
