@@ -133,6 +133,23 @@ app.post("/add-member", (req, res) => {
     res.json({ message: "Member added successfully" });
   });
 });
+// ✅ GET MEMBERS API
+app.get("/members/:id", (req, res) => {
+  const family_id = req.params.id;
+
+  const sql = "SELECT * FROM members WHERE family_id = ?";
+
+  db.query(sql, [family_id], (err, result) => {
+    if (err) {
+      console.log("❌ Fetch error:", err);
+      return res.json([]);
+    }
+
+    console.log("📤 Members:", result); // debug
+
+    res.json(result);
+  });
+});
 
 // ✅ START SERVER
 const PORT = process.env.PORT || 10000;
