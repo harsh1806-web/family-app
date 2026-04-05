@@ -125,8 +125,8 @@ function showSection(id) {
 }
 
 function addMember(button) {
-  button.disabled = true;              // ✅ stop double click
-  button.innerText = "Adding...";      // ✅ show loading
+  button.disabled = true;
+  button.innerText = "Adding...";
 
   if (!user) {
     alert("User not logged in");
@@ -159,15 +159,12 @@ function addMember(button) {
   .then(data => {
     alert(data.message || "Member added");
 
-    // ✅ CLEAR FORM
     document.querySelectorAll("input").forEach(i => i.value = "");
     document.getElementById("relation").selectedIndex = 0;
 
-    // ✅ RESET BUTTON
     button.disabled = false;
     button.innerText = "Add";
 
-    // ✅ OPTIONAL: refresh list automatically
     loadMembers();
   })
   .catch(err => {
@@ -178,22 +175,21 @@ function addMember(button) {
     button.innerText = "Add";
   });
 }
-
-    // ✅ optional: clear form
-    document.querySelectorAll("input").forEach(i => i.value = "");
-  })
-  .catch(err => {
-    console.log(err);
-    alert("Error adding member");
-  });
-}
     
 
 function loadMembers() {
   fetch(`/members/${user.id}`)
     .then(res => res.json())
     .then(data => {
+
+      if (!data.length) {
+        document.getElementById("members").innerHTML =
+          "<p>No members found</p>";
+        return;
+      }
+
       let html = "";
+
       data.forEach(m => {
         html += `
           <div class="member">
@@ -207,7 +203,11 @@ function loadMembers() {
           </div>
         `;
       });
+
       document.getElementById("members").innerHTML = html;
+    })
+    .catch(err => {
+      console.log(err);
     });
 }
 </script>
