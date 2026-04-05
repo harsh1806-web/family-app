@@ -210,10 +210,16 @@ li {
 <input id="education" placeholder="Education / शिक्षा">
 <input id="hobbies" placeholder="Hobbies / शौक">
 
-    <button onclick="addMember(this)">Add</button>
-    <select id="parent">
-  <option value="0">No Parent (Head)</option>
+    <label><b>Belongs To (Parent Member)</b></label>
+
+<select id="parent">
+  <option value="0">No Parent (Head of Family)</option>
 </select>
+<p style="font-size: 12px; color: gray;">
+  👉 Choose who this member belongs to (for family tree)
+</p>
+
+<button onclick="addMember(this)">Add</button>
   </div>
 
   <!-- MEMBERS LIST -->
@@ -326,7 +332,7 @@ function loadParentOptions() {
     .then(res => res.json())
     .then(data => {
 
-      let options = `<option value="0">No Parent (Head)</option>`;
+      let options = `<option value="0">👑 Head of Family (No Parent)</option>`;
 
       data.forEach(m => {
         options += `<option value="${m.id}">${m.name}</option>`;
