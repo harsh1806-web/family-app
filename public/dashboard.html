@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Family App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
 body {
@@ -101,6 +102,62 @@ button:hover {
 .member:hover {
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+}
+/* 📱 MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+
+  body {
+    flex-direction: column;
+  }
+
+  /* Sidebar becomes top bar */
+  .sidebar {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .sidebar h2 {
+    display: none; /* hide title on mobile */
+  }
+
+  .sidebar button {
+    width: auto;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Main content full width */
+  .main {
+    padding: 15px;
+  }
+
+  /* Card spacing */
+  .card {
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  /* Inputs */
+  input, select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Button */
+  button {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Member cards */
+  .member {
+    font-size: 14px;
+  }
 }
 </style>
 </head>
