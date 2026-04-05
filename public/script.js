@@ -20,11 +20,16 @@ if (registerForm) {
 
       const data = await res.json();
 
-      alert(data.message);
+      if (data.success) {
+  // ✅ SAVE USER (VERY IMPORTANT)
+  localStorage.setItem("user", JSON.stringify(data.user));
 
-      if (res.ok) {
-        window.location.href = "/login.html";
-      }
+  alert(data.message);
+
+  window.location.href = "/dashboard.html";
+} else {
+  alert(data.message || "Login failed");
+}
 
     } catch (err) {
       console.log("Register error:", err);
