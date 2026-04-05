@@ -159,6 +159,17 @@ button:hover {
     font-size: 14px;
   }
 }
+ul {
+  list-style: none;
+  padding-left: 20px;
+}
+
+li {
+  margin: 10px 0;
+  padding: 10px;
+  background: #e0f2fe;
+  border-radius: 8px;
+}
 </style>
 </head>
 
@@ -182,13 +193,13 @@ button:hover {
 <select id="relation">
   <option>Head / मुखिया</option>
   <option>Spouse / पति-पत्नी</option>
-  <option>Sister / बहन</option>
-  <option>Son / बेटा</option>
-  <option>Daughter-in-law / बहू</option>
-  <option>Daughter / बेटी</option>
-  <option>Son-in-law / दामाद (if married)</option>
-  <option>Grandson / पोता</option>
-  <option>Granddaughter / पोती</option>
+  <option>Head of family's sister / परिवार के मुखिया की बहन</option>
+  <option>Head of family's son / परिवार के मुखिया का बेटा</option>
+  <option>Head of family's daughter in law / परिवार के मुखिया की बहू</option>
+  <option>Daughter / परिवार के मुखिया की बेटी</option>
+  <option>Son-in-law / परिवार के मुखिया का दामाद (if married)</option>
+  <option>Grandson / परिवार के मुखिया का पोता  </option>
+  <option>Granddaughter / परिवार के मुखिया की पोती</option>
 
 
 </select>
@@ -200,6 +211,9 @@ button:hover {
 <input id="hobbies" placeholder="Hobbies / शौक">
 
     <button onclick="addMember(this)">Add</button>
+    <select id="parent">
+  <option value="0">No Parent (Head)</option>
+</select>
   </div>
 
   <!-- MEMBERS LIST -->
@@ -224,6 +238,8 @@ function showSection(id) {
   document.getElementById(id).style.display = "block";
 
   if (id === "list") loadMembers();
+
+  if (id === "add") loadParentOptions(); // ✅ ADD THIS
 }
 
 function addMember(button) {
@@ -242,7 +258,7 @@ function addMember(button) {
     name: document.getElementById("name").value,
     age: document.getElementById("age").value,
     relation: document.getElementById("relation").value,
-    parent_id: 0,
+    parent_id: document.getElementById("parent").value,
     phone: document.getElementById("phone").value,
     address: document.getElementById("address").value,
     business_address: document.getElementById("business").value,
@@ -284,32 +300,39 @@ function loadMembers() {
     .then(res => res.json())
     .then(data => {
 
-      if (!data.length) {
-        document.getElementById("members").innerHTML =
-          "<p>No members found</p>";
-        return;
+      function buildTree(parentId) {
+        let html = "<ul>";
+
+        data
+          .filter(m => m.parent_id == parentId)
+          .forEach(m => {
+            html += `
+              <li>
+                <b>${m.name}</b> (${m.relation})
+                ${buildTree(m.id)}
+              </li>
+            `;
+          });
+
+        html += "</ul>";
+        return html;
       }
 
-      let html = "";
+      document.getElementById("members").innerHTML = buildTree(0);
+    });
+}
+function loadParentOptions() {
+  fetch(`/members/${user.id}`)
+    .then(res => res.json())
+    .then(data => {
+
+      let options = `<option value="0">No Parent (Head)</option>`;
 
       data.forEach(m => {
-        html += `
-          <div class="member">
-            <b>${m.name}</b><br>
-            Age: ${m.age}<br>
-            Relation: ${m.relation}<br>
-            Phone: ${m.phone}<br>
-            Address: ${m.address}<br>
-            Education: ${m.education}<br>
-            Hobbies: ${m.hobbies}
-          </div>
-        `;
+        options += `<option value="${m.id}">${m.name}</option>`;
       });
 
-      document.getElementById("members").innerHTML = html;
-    })
-    .catch(err => {
-      console.log(err);
+      document.getElementById("parent").innerHTML = options;
     });
 }
 </script>
