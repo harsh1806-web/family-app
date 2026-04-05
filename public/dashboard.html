@@ -2,77 +2,115 @@
 <html>
 <head>
   <title>Family App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      display: flex;
-      background: #f4f6f9;
-    }
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
 
-    /* Sidebar */
-    .sidebar {
-      width: 220px;
-      background: #1e293b;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-    }
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: #0f172a;
+  color: white;
+  height: 100vh;
+  padding: 25px;
+}
 
-    .sidebar h2 {
-      margin-bottom: 30px;
-    }
+.sidebar h2 {
+  margin-bottom: 40px;
+  font-weight: 600;
+}
 
-    .sidebar button {
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      border: none;
-      background: #334155;
-      color: white;
-      cursor: pointer;
-      border-radius: 5px;
-    }
+.sidebar button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border: none;
+  background: #1e293b;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.3s;
+}
 
-    .sidebar button:hover {
-      background: #475569;
-    }
+.sidebar button:hover {
+  background: #3b82f6;
+}
 
-    /* Main */
-    .main {
-      flex: 1;
-      padding: 20px;
-    }
+/* Main */
+.main {
+  flex: 1;
+  padding: 30px;
+}
 
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
+/* Card */
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+}
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-    }
+/* Inputs */
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.2s;
+}
 
-    .member {
-      background: #f1f5f9;
-      padding: 10px;
-      border-radius: 5px;
-      margin: 10px 0;
-    }
-  </style>
+input:focus, select:focus {
+  border-color: #3b82f6;
+}
+
+/* Button */
+button {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+/* Member card */
+.member {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 10px 0;
+  transition: 0.3s;
+}
+
+.member:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+</style>
 </head>
 
 <body>
 
 <div class="sidebar">
   <h2>Family App</h2>
-  <button onclick="showSection('add')">Add Member</button>
-  <button onclick="showSection('list')">View Members</button>
+  <button onclick="showSection('add')">➕ Add Member</button>
+<button onclick="showSection('list')">📋 View Members</button>
 </div>
 
 <div class="main">
@@ -102,7 +140,7 @@
 
   <!-- MEMBERS LIST -->
   <div id="list" class="card" style="display:none;">
-    <h3>Members</h3>
+    <h3>👨‍👩‍👧‍👦 Family Members</h3>
     <div id="members"></div>
   </div>
 
