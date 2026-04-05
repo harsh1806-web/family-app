@@ -2,35 +2,86 @@
 <html>
 <head>
   <title>Admin Panel</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+
+    .family {
+      padding: 10px;
+      margin: 10px 0;
+      background: #f1f5f9;
+    }
+
+    .member {
+      margin-left: 20px;
+      padding: 5px;
+    }
+
+    button {
+      margin-left: 10px;
+    }
+  </style>
 </head>
 <body>
 
 <h2>All Families</h2>
 <div id="families"></div>
 
-<h2>All Members</h2>
+<h2>Family Members</h2>
 <div id="members"></div>
 
 <script>
-fetch('/admin/families')
-.then(res => res.json())
-.then(data => {
-  let html = "";
-  data.forEach(f => {
-    html += `<p>${f.family_name} (${f.email})</p>`;
-  });
-  document.getElementById("families").innerHTML = html;
-});
+function loadFamilies() {
+  fetch("/families")
+    .then(res => res.json())
+    .then(data => {
 
-fetch('/admin/members')
-.then(res => res.json())
-.then(data => {
-  let html = "";
-  data.forEach(m => {
-    html += `<p>${m.name} - ${m.relation}</p>`;
-  });
-  document.getElementById("members").innerHTML = html;
-});
+      let html = "";
+
+      data.forEach(f => {
+        html += `
+          <div class="family">
+            <b>${f.name}</b> (${f.email})
+            <button onclick="loadMembers(${f.id})">View Members</button>
+          </div>
+        `;
+      });
+
+      document.getElementById("families").innerHTML = html;
+    });
+}
+
+function loadMembers(familyId) {
+  fetch(`/members/${familyId}`)
+    .then(res => res.json())
+    .then(data => {
+
+      if (!data.length) {
+        document.getElementById("members").innerHTML = "<p>No members found</p>";
+        return;
+      }
+
+      let html = "";
+
+      data.forEach(m => {
+        html += `
+          <div class="member">
+            <b>${m.name}</b><br>
+            Age: ${m.age}<br>
+            Relation: ${m.relation}<br>
+            Phone: ${m.phone}<br>
+          </div>
+        `;
+      });
+
+      document.getElementById("members").innerHTML = html;
+    });
+}
+
+// Load families when page opens
+loadFamilies();
 </script>
 
 </body>

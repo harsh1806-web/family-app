@@ -171,6 +171,19 @@ app.get("/members/:id", (req, res) => {
     res.json(result);
   });
 });
+// ✅ GET ALL FAMILIES (USERS)
+app.get("/families", (req, res) => {
+  const sql = "SELECT id, name, email FROM users";
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log("❌ Error fetching families:", err);
+      return res.json([]);
+    }
+
+    res.json(result);
+  });
+});
 
 // ✅ START SERVER
 const PORT = process.env.PORT || 10000;
