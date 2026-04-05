@@ -250,7 +250,7 @@ function showSection(id) {
 
 function addMember(button) {
   button.disabled = true;
-  button.innerText = "Adding...";
+  button.innerText = window.editingId ? "Updating..." : "Adding...";
 
   if (!user) {
     alert("User not logged in");
@@ -272,8 +272,14 @@ function addMember(button) {
     hobbies: document.getElementById("hobbies").value
   };
 
-  fetch("/add-member", {
-    method: "POST",
+  const url = window.editingId 
+  ? `/update-member/${window.editingId}` 
+  : "/add-member";
+
+const method = window.editingId ? "PUT" : "POST";
+
+fetch(url, {
+  method: method,
     headers: {
       "Content-Type": "application/json"
     },
@@ -282,6 +288,7 @@ function addMember(button) {
   .then(res => res.json())
   .then(data => {
     alert(data.message || "Member added");
+    window.editingId = null;
 
     document.querySelectorAll("input").forEach(i => i.value = "");
     document.getElementById("relation").selectedIndex = 0;
@@ -313,11 +320,16 @@ function loadMembers() {
           .filter(m => m.parent_id == parentId)
           .forEach(m => {
             html += `
-              <li>
-                <b>${m.name}</b> (${m.relation})
-                ${buildTree(m.id)}
-              </li>
-            `;
+  <li>
+    <b>${m.name}</b> (${m.relation}) <br>
+
+    <button onclick="editMember(${m.id}, '${m.name}', '${m.age}', '${m.relation}', '${m.phone}', '${m.address}', '${m.business_address}', '${m.education}', '${m.hobbies}')">
+      ✏️ Edit
+    </button>
+
+    ${buildTree(m.id)}
+  </li>
+`;
           });
 
         html += "</ul>";
@@ -340,6 +352,21 @@ function loadParentOptions() {
 
       document.getElementById("parent").innerHTML = options;
     });
+}
+function editMember(id, name, age, relation, phone, address, business, education, hobbies) {
+
+  document.getElementById("name").value = name;
+  document.getElementById("age").value = age;
+  document.getElementById("relation").value = relation;
+  document.getElementById("phone").value = phone;
+  document.getElementById("address").value = address;
+  document.getElementById("business").value = business;
+  document.getElementById("education").value = education;
+  document.getElementById("hobbies").value = hobbies;
+
+  window.editingId = id;
+
+  showSection("add");
 }
 </script>
 

@@ -154,6 +154,46 @@ app.post("/add-member", (req, res) => {
     });
   });
 });
+// ✅ UPDATE MEMBER API
+app.put("/update-member/:id", (req, res) => {
+  const id = req.params.id;
+
+  const {
+    name,
+    age,
+    relation,
+    phone,
+    address,
+    business_address,
+    education,
+    hobbies
+  } = req.body;
+
+  const sql = `
+    UPDATE members 
+    SET name=?, age=?, relation=?, phone=?, address=?, business_address=?, education=?, hobbies=?
+    WHERE id=?
+  `;
+
+  db.query(sql, [
+    name,
+    age,
+    relation,
+    phone,
+    address,
+    business_address,
+    education,
+    hobbies,
+    id
+  ], (err) => {
+    if (err) {
+      console.log("❌ Update error:", err);
+      return res.json({ message: "Update failed" });
+    }
+
+    res.json({ message: "Member updated successfully" });
+  });
+});
 // ✅ GET MEMBERS API
 app.get("/members/:id", (req, res) => {
   const family_id = req.params.id;
