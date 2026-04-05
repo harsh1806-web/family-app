@@ -111,6 +111,11 @@
 <script>
 const user = JSON.parse(localStorage.getItem("user"));
 
+if (!user) {
+  alert("Please login again");
+  window.location.href = "/login.html";
+}
+
 function showSection(id) {
   document.getElementById("add").style.display = "none";
   document.getElementById("list").style.display = "none";
@@ -120,24 +125,46 @@ function showSection(id) {
 }
 
 function addMember() {
+  console.log("Clicked Add Member");
+
+  if (!user) {
+    alert("User not logged in");
+    return;
+  }
+
+  const payload = {
+    family_id: user.id,
+    name: document.getElementById("name").value,
+    age: document.getElementById("age").value,
+    relation: document.getElementById("relation").value,
+    parent_id: 0,
+    phone: document.getElementById("phone").value,
+    address: document.getElementById("address").value,
+    business_address: document.getElementById("business").value,
+    education: document.getElementById("education").value,
+    hobbies: document.getElementById("hobbies").value
+  };
+
+  console.log("Sending:", payload); // 👈 DEBUG
+
   fetch("/add-member", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      family_id: user.id,
-      name: document.getElementById("name").value,
-      age: document.getElementById("age").value,
-      relation: document.getElementById("relation").value,
-      parent_id: 0,
-      phone: document.getElementById("phone").value,
-      address: document.getElementById("address").value,
-      business_address: document.getElementById("business").value,
-      education: document.getElementById("education").value,
-      hobbies: document.getElementById("hobbies").value
-    })
-  }).then(res => res.json())
-    .then(() => alert("Member Added"));
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("Response:", data); // 👈 DEBUG
+    alert(data.message);
+  })
+  .catch(err => {
+    console.log("ERROR:", err);
+    alert("Error adding member");
+  });
 }
+    
 
 function loadMembers() {
   fetch(`/members/${user.id}`)

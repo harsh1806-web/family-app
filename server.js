@@ -89,6 +89,50 @@ app.post("/login", (req, res) => {
     }
   });
 });   
+// ✅ ADD MEMBER API
+app.post("/add-member", (req, res) => {
+  console.log("📥 Incoming:", req.body);
+
+  const {
+    family_id,
+    name,
+    age,
+    relation,
+    parent_id,
+    phone,
+    address,
+    business_address,
+    education,
+    hobbies
+  } = req.body;
+
+  const sql = `
+    INSERT INTO members 
+    (family_id, name, age, relation, parent_id, phone, address, business_address, education, hobbies)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(sql, [
+    family_id,
+    name,
+    age,
+    relation,
+    parent_id,
+    phone,
+    address,
+    business_address,
+    education,
+    hobbies
+  ], (err, result) => {
+    if (err) {
+      console.log("❌ DB ERROR:", err);
+      return res.json({ message: "Error adding member" });
+    }
+
+    console.log("✅ Member added");
+    res.json({ message: "Member added successfully" });
+  });
+});
 
 // ✅ START SERVER
 const PORT = process.env.PORT || 10000;
