@@ -171,7 +171,7 @@ app.get("/members/:id", (req, res) => {
     res.json(result);
   });
 });
-// ✅ GET ALL FAMILIES (USERS)
+// ✅ GET ALL FAMILIES (SECURE READY)
 app.get("/families", (req, res) => {
   const sql = "SELECT id, name, email FROM users";
 
