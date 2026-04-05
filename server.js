@@ -184,6 +184,21 @@ app.get("/families", (req, res) => {
     res.json(result);
   });
 });
+// ✅ DELETE MEMBER
+app.delete("/delete-member/:id", (req, res) => {
+  const id = req.params.id;
+
+  const sql = "DELETE FROM members WHERE id = ?";
+
+  db.query(sql, [id], (err) => {
+    if (err) {
+      console.log(err);
+      return res.json({ message: "Delete failed" });
+    }
+
+    res.json({ message: "Member deleted" });
+  });
+});
 
 // ✅ START SERVER
 const PORT = process.env.PORT || 10000;

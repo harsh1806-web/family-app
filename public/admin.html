@@ -31,6 +31,7 @@
 
 <h2>Family Members</h2>
 <div id="members"></div>
+<button onclick="printPage()">Print / Save as PDF</button>
 
 <script>
 function loadFamilies() {
@@ -78,6 +79,9 @@ function loadMembers(familyId) {
 
       document.getElementById("members").innerHTML = html;
     });
+}
+function printPage() {
+  window.print();
 }
 
 // Load families when page opens
