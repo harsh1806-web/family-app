@@ -69,12 +69,24 @@ function login() {
   .then(res => res.json())
   .then(data => {
 
-    alert(data.message);  // show message
+   if (data.success) {
+  // ✅ SAVE USER (MOST IMPORTANT LINE)
+  localStorage.setItem("user", JSON.stringify(data.user));
 
-    // ✅ redirect if login success
-    if (data.message === "✅ Login successful") {
-      window.location.href = "/dashboard.html";
-    }
+  if (data.success) {
+  localStorage.setItem("user", JSON.stringify(data.user));
+
+  alert(data.message);   // ✅ safe now
+
+  window.location.href = "/dashboard.html";
+} else {
+  alert(data.message);
+}
+
+  window.location.href = "/dashboard.html";
+} else {
+  alert(data.message);
+}
 
   })
   .catch(err => {
