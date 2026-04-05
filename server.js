@@ -90,6 +90,7 @@ app.post("/login", (req, res) => {
   });
 });   
 // ✅ ADD MEMBER API
+// ✅ ADD MEMBER API (IMPROVED)
 app.post("/add-member", (req, res) => {
   console.log("📥 Incoming:", req.body);
 
@@ -106,38 +107,58 @@ app.post("/add-member", (req, res) => {
     hobbies
   } = req.body;
 
-  const sql = `
-    INSERT INTO members 
-    (family_id, name, age, relation, parent_id, phone, address, business_address, education, hobbies)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+  // ✅ STEP A: VALIDATION
+  if (!family_id || !name || !age || !relation) {
+    return res.json({ message: "Please fill required fields" });
+  }
 
-  db.query(sql, [
-    family_id,
-    name,
-    age,
-    relation,
-    parent_id,
-    phone,
-    address,
-    business_address,
-    education,
-    hobbies
-  ], (err, result) => {
+  // ✅ STEP B: CHECK DUPLICATE
+  const checkSql = "SELECT * FROM members WHERE name = ? AND phone = ?";
+
+  db.query(checkSql, [name, phone], (err, result) => {
     if (err) {
-      console.log("❌ DB ERROR:", err);
-      return res.json({ message: "Error adding member" });
+      console.log("❌ Check error:", err);
+      return res.status(500).json({ message: "Database error" });
     }
 
-    console.log("✅ Member added");
-    res.json({ message: "Member added successfully" });
+    if (result.length > 0) {
+      return res.json({ message: "Member already exists" });
+    }
+
+    // ✅ STEP C: INSERT
+    const sql = `
+      INSERT INTO members 
+      (family_id, name, age, relation, parent_id, phone, address, business_address, education, hobbies)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(sql, [
+      family_id,
+      name,
+      age,
+      relation,
+      parent_id,
+      phone,
+      address,
+      business_address,
+      education,
+      hobbies
+    ], (err, result) => {
+      if (err) {
+        console.log("❌ DB ERROR:", err);
+        return res.status(500).json({ message: "Error adding member" });
+      }
+
+      console.log("✅ Member added");
+      res.json({ message: "Member added successfully" });
+    });
   });
 });
 // ✅ GET MEMBERS API
 app.get("/members/:id", (req, res) => {
   const family_id = req.params.id;
 
-  const sql = "SELECT * FROM members WHERE family_id = ?";
+  const sql = "SELECT * FROM members WHERE family_id = ? ORDER BY id DESC";
 
   db.query(sql, [family_id], (err, result) => {
     if (err) {
