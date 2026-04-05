@@ -37,6 +37,7 @@ button {
 
 <h2>Family Members</h2>
 <div id="members"></div>
+<button onclick="downloadPDF()">Download Family PDF</button>
 <button onclick="printPage()">Print / Save as PDF</button>
 
 <script>
@@ -60,33 +61,68 @@ function loadFamilies() {
     });
 }
 
+let currentFamilyName = "";
+
 function loadMembers(familyId) {
+  fetch("/families")
+    .then(res => res.json())
+    .then(families => {
+      const family = families.find(f => f.id == familyId);
+      currentFamilyName = family ? family.name : "Family";
+    });
+
   fetch(`/members/${familyId}`)
     .then(res => res.json())
     .then(data => {
 
+      let html = `<h3>${currentFamilyName} Family</h3>`;
+
       if (!data.length) {
-        document.getElementById("members").innerHTML = "<p>No members found</p>";
-        return;
+        html += "<p>No members found</p>";
+      } else {
+        data.forEach(m => {
+          html += `
+            <div class="member">
+              <b>${m.name}</b><br>
+              Age: ${m.age}<br>
+              Relation: ${m.relation}<br>
+              Phone: ${m.phone}<br>
+              Address: ${m.address}<br>
+            </div>
+          `;
+        });
       }
-
-      let html = "";
-
-      data.forEach(m => {
-  html += `
-    <div class="member">
-      <b>${m.name}</b><br>
-      Age: ${m.age}<br>
-      Relation: ${m.relation}<br>
-      Phone: ${m.phone}<br>
-
-      <button onclick="deleteMember(${m.id}, ${familyId})">Delete</button>
-    </div>
-  `;
-});
 
       document.getElementById("members").innerHTML = html;
     });
+}
+function downloadPDF() {
+  const content = document.getElementById("members").innerHTML;
+
+  const newWindow = window.open("", "", "width=800,height=600");
+
+  newWindow.document.write(`
+    <html>
+      <head>
+        <title>${currentFamilyName} Family</title>
+        <style>
+          body { font-family: Arial; padding: 20px; }
+          .member {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+          }
+        </style>
+      </head>
+      <body>
+        <h2>${currentFamilyName} Family Details</h2>
+        ${content}
+      </body>
+    </html>
+  `);
+
+  newWindow.document.close();
+  newWindow.print();
 }
 function deleteMember(id, familyId) {
   const confirmDelete = confirm("Are you sure you want to delete this member?");
