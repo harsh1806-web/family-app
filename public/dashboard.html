@@ -97,7 +97,7 @@
     <input id="education" placeholder="Education">
     <input id="hobbies" placeholder="Hobbies">
 
-    <button onclick="addMember()">Add</button>
+    <button onclick="addMember(this)">Add</button>
   </div>
 
   <!-- MEMBERS LIST -->
@@ -124,11 +124,14 @@ function showSection(id) {
   if (id === "list") loadMembers();
 }
 
-function addMember() {
-  console.log("Clicked Add Member");
+function addMember(button) {
+  button.disabled = true;              // ✅ stop double click
+  button.innerText = "Adding...";      // ✅ show loading
 
   if (!user) {
     alert("User not logged in");
+    button.disabled = false;
+    button.innerText = "Add";
     return;
   }
 
@@ -145,8 +148,6 @@ function addMember() {
     hobbies: document.getElementById("hobbies").value
   };
 
-  console.log("Sending:", payload); // 👈 DEBUG
-
   fetch("/add-member", {
     method: "POST",
     headers: {
@@ -156,11 +157,33 @@ function addMember() {
   })
   .then(res => res.json())
   .then(data => {
-    console.log("Response:", data); // 👈 DEBUG
-    alert(data.message);
+    alert(data.message || "Member added");
+
+    // ✅ CLEAR FORM
+    document.querySelectorAll("input").forEach(i => i.value = "");
+    document.getElementById("relation").selectedIndex = 0;
+
+    // ✅ RESET BUTTON
+    button.disabled = false;
+    button.innerText = "Add";
+
+    // ✅ OPTIONAL: refresh list automatically
+    loadMembers();
   })
   .catch(err => {
-    console.log("ERROR:", err);
+    console.log(err);
+    alert("Error adding member");
+
+    button.disabled = false;
+    button.innerText = "Add";
+  });
+}
+
+    // ✅ optional: clear form
+    document.querySelectorAll("input").forEach(i => i.value = "");
+  })
+  .catch(err => {
+    console.log(err);
     alert("Error adding member");
   });
 }
