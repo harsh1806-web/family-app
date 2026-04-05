@@ -41,6 +41,18 @@ button {
 <button onclick="printPage()">Print / Save as PDF</button>
 
 <script>
+  const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+  alert("Please login first");
+  window.location.href = "/login.html";
+}
+
+// ❌ NOT ADMIN → BLOCK ACCESS
+if (user.role !== "admin") {
+  alert("Access denied. Admin only.");
+  window.location.href = "/dashboard.html";
+}
 function loadFamilies() {
   fetch("/families")
     .then(res => res.json())
@@ -83,11 +95,13 @@ function loadMembers(familyId) {
         data.forEach(m => {
           html += `
             <div class="member">
-              <b>${m.name}</b><br>
-              Age: ${m.age}<br>
-              Relation: ${m.relation}<br>
-              Phone: ${m.phone}<br>
-              Address: ${m.address}<br>
+              <b>नाम (Name): ${m.name}<br>
+उम्र (Age): ${m.age}<br>
+रिश्ता (Relation): ${m.relation}<br>
+फोन (Phone): ${m.phone}<br>
+पता (Address): ${m.address}<br>
+शिक्षा (Education): ${m.education}<br>
+शौक (Hobbies): ${m.hobbies}<br>
             </div>
           `;
         });
