@@ -5,14 +5,22 @@ const cors = require("cors");
 const path = require("path");
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,   // IMPORTANT
   auth: {
+   
     user: "directory.sanghavifamily@gmail.com",
    
     pass: "kgxl kxqq dexl upqq"
   }
 
+});
+transporter.verify((error, success) => {
+  if (error) {
+    console.log("❌ SMTP ERROR:", error);
+  } else {
+    console.log("✅ SMTP READY");
+  }
 });
 
 
