@@ -124,14 +124,16 @@ app.post("/forgot-password", (req, res) => {
     text: `Your OTP is: ${otp}`
   };
 
-  transporter.sendMail(mailOptions, (err) => {
-    if (err) {
-      console.log(err);
-      return res.json({ message: "Error sending OTP" });
-    }
+  transporter.sendMail(mailOptions, (err, info) => {
+  if (err) {
+    console.log("❌ EMAIL ERROR:", err);   // 👈 IMPORTANT
+    return res.json({ message: "Error sending OTP" });
+  }
 
-    res.json({ message: "OTP sent to email" });
-  });
+  console.log("✅ EMAIL SENT:", info);    // 👈 IMPORTANT
+
+  res.json({ message: "OTP sent to email" });
+});
 });
 app.post("/reset-password", (req, res) => {
   const { email, otp, newPassword } = req.body;
