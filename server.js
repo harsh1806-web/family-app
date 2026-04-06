@@ -1,9 +1,21 @@
+const nodemailer = require("nodemailer");
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "harshsanghavi07@gmail.com",
+    pass: "augh brqf epfl pslm"
+  }
+
+});
+
 
 const app = express();
+
+
 
 // ✅ Middleware
 app.use(cors());
@@ -89,6 +101,23 @@ app.post("/login", (req, res) => {
     }
   });
 });   
+app.get("/test-email", (req, res) => {
+  const mailOptions = {
+    from: "your-email@gmail.com",
+    to: "your-email@gmail.com",
+    subject: "Test Email",
+    text: "Email working successfully!"
+  };
+
+  transporter.sendMail(mailOptions, (err) => {
+    if (err) {
+      console.log(err);
+      return res.send("Error sending email");
+    }
+
+    res.send("Email sent successfully!");
+  });
+});
 // ✅ ADD MEMBER API
 // ✅ ADD MEMBER API (IMPROVED)
 app.post("/add-member", (req, res) => {
