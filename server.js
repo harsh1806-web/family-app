@@ -4,9 +4,12 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
   auth: {
     user: "harshsanghavi07@gmail.com",
+   
     pass: "augh brqf epfl pslm"
   }
 
