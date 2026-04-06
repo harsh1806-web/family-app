@@ -104,7 +104,7 @@ app.post("/login", (req, res) => {
 app.get("/test-email", (req, res) => {
   const mailOptions = {
     from: "your-email@gmail.com",
-    to: "your-email@gmail.com",
+    to: "harshsanghavi07@gmail.com",
     subject: "Test Email",
     text: "Email working successfully!"
   };
@@ -116,6 +116,53 @@ app.get("/test-email", (req, res) => {
     }
 
     res.send("Email sent successfully!");
+  });
+});
+let otpStore = {};
+
+app.post("/forgot-password", (req, res) => {
+  const { email } = req.body;
+
+  const otp = Math.floor(100000 + Math.random() * 900000);
+
+  otpStore[email] = otp;
+
+  console.log("OTP:", otp);
+
+  const mailOptions = {
+    from: "harshsanghavi07@gmail.com",
+    to: email,
+    subject: "Password Reset OTP",
+    text: `Your OTP is: ${otp}`
+  };
+
+  transporter.sendMail(mailOptions, (err) => {
+    if (err) {
+      console.log(err);
+      return res.json({ message: "Error sending OTP" });
+    }
+
+    res.json({ message: "OTP sent to email" });
+  });
+});
+app.post("/reset-password", (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  if (otpStore[email] != otp) {
+    return res.json({ message: "Invalid OTP" });
+  }
+
+  const sql = "UPDATE users SET password=? WHERE email=?";
+
+  db.query(sql, [newPassword, email], (err) => {
+    if (err) {
+      console.log(err);
+      return res.json({ message: "Error updating password" });
+    }
+
+    delete otpStore[email];
+
+    res.json({ message: "Password updated successfully" });
   });
 });
 // ✅ ADD MEMBER API
