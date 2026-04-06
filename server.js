@@ -115,6 +115,10 @@ app.post("/login", (req, res) => {
 
 
 let otpStore = {};
+app.post("/forgot-password", (req, res) => {
+  console.log("🔥 FORGOT PASSWORD API CALLED");   // 👈 ADD THIS
+
+  const { email } = req.body;
 
 app.post("/forgot-password", (req, res) => {
   const { email } = req.body;
@@ -132,7 +136,7 @@ app.post("/forgot-password", (req, res) => {
     text: `Your OTP is: ${otp}`
   };
 
-  transporter.sendMail(mailOptions, (err, info) => {
+  console.log("📨 Sending email to:", email);
   if (err) {
     console.log("❌ EMAIL ERROR:", err);   // 👈 IMPORTANT
     return res.json({ message: "Error sending OTP" });
