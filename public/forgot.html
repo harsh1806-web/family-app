@@ -66,7 +66,7 @@
 function sendOTP() {
   const email = document.getElementById("email").value;
 
-  fetch("/forgot-password", {
+  fetch("https://family-app-1-55d7.onrender.com/forgot-password", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -82,7 +82,7 @@ function resetPassword() {
   const otp = document.getElementById("otp").value;
   const newPassword = document.getElementById("newPassword").value;
 
-  fetch("/reset-password", {
+  fetch("https://family-app-1-55d7.onrender.com/reset-password", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
