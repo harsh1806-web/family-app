@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
    
     user: "directory.sanghavifamily@gmail.com",
    
-    pass: "kgxl kxqq dexl upqq"
+    pass: "kgxlkxqqdexlupqq"
   }
 
 });
