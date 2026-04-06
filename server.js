@@ -8,9 +8,9 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: "harshsanghavi07@gmail.com",
+    user: "directory.sanghavifamily@gmail.com",
    
-    pass: "augh brqf epfl pslm"
+    pass: "kgxl kxqq dexl upqq"
   }
 
 });
@@ -104,23 +104,8 @@ app.post("/login", (req, res) => {
     }
   });
 });   
-app.get("/test-email", (req, res) => {
-  const mailOptions = {
-    from: "your-email@gmail.com",
-    to: "harshsanghavi07@gmail.com",
-    subject: "Test Email",
-    text: "Email working successfully!"
-  };
 
-  transporter.sendMail(mailOptions, (err) => {
-    if (err) {
-      console.log(err);
-      return res.send("Error sending email");
-    }
 
-    res.send("Email sent successfully!");
-  });
-});
 let otpStore = {};
 
 app.post("/forgot-password", (req, res) => {
@@ -133,7 +118,7 @@ app.post("/forgot-password", (req, res) => {
   console.log("OTP:", otp);
 
   const mailOptions = {
-    from: "harshsanghavi07@gmail.com",
+    from: "directory.sanghavifamily@gmail.com",
     to: email,
     subject: "Password Reset OTP",
     text: `Your OTP is: ${otp}`
