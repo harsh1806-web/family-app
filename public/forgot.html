@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Forgot Password</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #5a67d8;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Forgot Password</h2>
+
+  <input id="email" placeholder="Enter Email">
+  <button onclick="sendOTP()">Send OTP</button>
+
+  <input id="otp" placeholder="Enter OTP">
+  <input id="newPassword" placeholder="New Password">
+
+  <button onclick="resetPassword()">Reset Password</button>
+</div>
+
+<script>
+function sendOTP() {
+  const email = document.getElementById("email").value;
+
+  fetch("/forgot-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  })
+  .then(res => res.json())
+  .then(data => alert(data.message));
+}
+
+function resetPassword() {
+  const email = document.getElementById("email").value;
+  const otp = document.getElementById("otp").value;
+  const newPassword = document.getElementById("newPassword").value;
+
+  fetch("/reset-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email,
+      otp,
+      newPassword
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message);
+
+    if (data.message.includes("success")) {
+      window.location.href = "/login.html";
+    }
+  });
+}
+</script>
+
+</body>
+</html>
