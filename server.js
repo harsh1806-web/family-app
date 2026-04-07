@@ -4,8 +4,20 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
 const app = express();
+const multer = require("multer");
 
 let otpStore = {};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // ✅ Middleware
 app.use(cors());
@@ -157,7 +169,7 @@ app.post("/reset-password", (req, res) => {
 });
 // ✅ ADD MEMBER API
 // ✅ ADD MEMBER API (IMPROVED)
-app.post("/add-member", (req, res) => {
+app.post("/add-member", upload.single("photo"), (req, res) => {
   console.log("📥 Incoming:", req.body);
 
   const {
@@ -172,6 +184,13 @@ app.post("/add-member", (req, res) => {
     education,
     hobbies
   } = req.body;
+
+  // ✅ CHECK PHOTO
+  if (!req.file) {
+    return res.json({ message: "Photo is required" });
+  }
+
+  const photo = req.file.filename;
 
   // ✅ STEP A: VALIDATION
   if (!family_id || !name || !age || !relation) {

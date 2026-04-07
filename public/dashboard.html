@@ -209,7 +209,7 @@ li {
 <input id="business" placeholder="Business Address / व्यवसाय पता">
 <input id="education" placeholder="Education / शिक्षा">
 <input id="hobbies" placeholder="Hobbies / शौक">
-
+<input type="file" id="photo" accept="image/*">
     <label><b>Belongs To (Parent Member)</b></label>
 
 <select id="parent">
@@ -259,35 +259,39 @@ function addMember(button) {
     return;
   }
 
-  const payload = {
-    family_id: user.id,
-    name: document.getElementById("name").value,
-    age: document.getElementById("age").value,
-    relation: document.getElementById("relation").value,
-    parent_id: document.getElementById("parent").value,
-    phone: document.getElementById("phone").value,
-    address: document.getElementById("address").value,
-    business_address: document.getElementById("business").value,
-    education: document.getElementById("education").value,
-    hobbies: document.getElementById("hobbies").value
-  };
+  const formData = new FormData();
+
+  formData.append("family_id", user.id);
+  formData.append("name", document.getElementById("name").value);
+  formData.append("age", document.getElementById("age").value);
+  formData.append("relation", document.getElementById("relation").value);
+  formData.append("parent_id", document.getElementById("parent").value);
+  formData.append("phone", document.getElementById("phone").value);
+  formData.append("address", document.getElementById("address").value);
+  formData.append("business_address", document.getElementById("business").value);
+  formData.append("education", document.getElementById("education").value);
+  formData.append("hobbies", document.getElementById("hobbies").value);
+
+  // ✅ ADD PHOTO
+  const file = document.getElementById("photo").files[0];
+  if (file) {
+    formData.append("photo", file);
+  }
 
   const url = window.editingId 
-  ? `/update-member/${window.editingId}` 
-  : "/add-member";
+    ? `/update-member/${window.editingId}` 
+    : "/add-member";
 
-const method = window.editingId ? "PUT" : "POST";
+  const method = window.editingId ? "PUT" : "POST";
 
-fetch(url, {
-  method: method,
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
+  fetch(url, {
+    method: method,
+    body: formData   // ❌ NO JSON, ONLY formData
   })
   .then(res => res.json())
   .then(data => {
     alert(data.message || "Member added");
+
     window.editingId = null;
 
     document.querySelectorAll("input").forEach(i => i.value = "");
@@ -295,6 +299,16 @@ fetch(url, {
 
     button.disabled = false;
     button.innerText = "Add";
+
+    loadMembers();
+  })
+  .catch(err => {
+    console.log(err);
+    alert("Error adding member");
+
+    button.disabled = false;
+    button.innerText = "Add";
+  
 
     loadMembers();
   })
@@ -321,7 +335,9 @@ function loadMembers() {
           .forEach(m => {
             html += `
   <li>
-    <b>${m.name}</b> (${m.relation}) <br>
+    
+  <img src="/uploads/${m.photo}" width="60" style="border-radius:50%"><br>
+  <b>${m.name}</b> (${m.relation}) <br>
 
     <button onclick="editMember(${m.id}, '${m.name}', '${m.age}', '${m.relation}', '${m.phone}', '${m.address}', '${m.business_address}', '${m.education}', '${m.hobbies}')">
       ✏️ Edit
