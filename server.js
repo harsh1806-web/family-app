@@ -1,4 +1,5 @@
-const axios = require("axios");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");const axios = require("axios");
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -6,6 +7,11 @@ const path = require("path");
 const app = express();
 const multer = require("multer");
 
+cloudinary.config({
+  cloud_name: "dpc0avqb7",
+  api_key: "123135447529838",
+  api_secret: "_1k2P4X5sgqP1cQ0qz8Ikbp244Y"
+});
 let otpStore = {};
 
 const storage = multer.diskStorage({
@@ -195,7 +201,7 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
     return res.json({ message: "Photo is required" });
   }
 
-  const photo = req.file.filename;
+  const photo = req.file ? req.file.path :null;
 
   // ✅ CALCULATE AGE FROM DOB
   const birthDate = new Date(dob);

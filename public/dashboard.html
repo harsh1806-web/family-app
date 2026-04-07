@@ -192,7 +192,7 @@ function loadMembers() {
         data.filter(m => m.parent_id == parentId).forEach(m => {
           html += `
           <li>
-            <img src="/uploads/${m.photo}" width="50" style="border-radius:50%">
+            <img src=${m.photo}" width="50" style="border-radius:50%">
             <b>${m.name}</b><br>
             Age: ${m.age}<br>
             DOB: ${m.dob}<br>
