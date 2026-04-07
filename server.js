@@ -4,14 +4,14 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,   // IMPORTANT
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,   // IMPORTANT
   auth: {
    
-    user: "directory.sanghavifamily@gmail.com",
+    user: "a73fd9001@smtp-brevo.com",
    
-    pass: "ihddvynqbkooijaa"
+    pass: "xsmtpsib-7fa9c7a59f74517ec40ae03370aeff39b913b8a95115364781f9c81c4761ccd9-wXeA86QqRu0AmPyL"
   }
 
 });
