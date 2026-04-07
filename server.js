@@ -1,20 +1,10 @@
-const nodemailer = require("nodemailer");
+const axios = require("axios")
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
-const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,   // IMPORTANT
-  auth: {
-   
-    user: "a73fd9001@smtp-brevo.com",
-   
-    pass: process.env.EMAIL_PASS
-  }
 
-});
+
 transporter.verify((error, success) => {
   if (error) {
     console.log("❌ SMTP ERROR:", error);
@@ -115,37 +105,44 @@ app.post("/login", (req, res) => {
 
 
 let otpStore = {};
-app.post("/forgot-password", (req, res) => {
-  console.log("🔥 FORGOT PASSWORD API CALLED");   // 👈 ADD THIS
-
+app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
-app.post("/forgot-password", (req, res) => {
-  const { email } = req.body;
-
+  // generate 6 digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000);
-
-  otpStore[email] = otp;
 
   console.log("OTP:", otp);
 
-  const mailOptions = {
-    from: "directory.sanghavifamily@gmail.com",
-    to: email,
-    subject: "Password Reset OTP",
-    text: `Your OTP is: ${otp}`
-  };
+  try {
+    await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: "Family App",
+          email: "harshsanghavi07@gmail.com"
+        },
+        to: [
+          {
+            email: email
+          }
+        ],
+        subject: "Your OTP Code",
+        htmlContent: `<h2>Your OTP is ${otp}</h2>`
+      },
+      {
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-  console.log("📨 Sending email to:", email);
-  if (err) {
-    console.log("❌ EMAIL ERROR:", err);   // 👈 IMPORTANT
-    return res.json({ message: "Error sending OTP" });
+    res.json({ message: "OTP sent successfully" });
+
+  } catch (err) {
+    console.log("BREVO ERROR:", err.response?.data || err.message);
+    res.json({ message: "Error sending OTP" });
   }
-
-  console.log("✅ EMAIL SENT:", info);    // 👈 IMPORTANT
-
-  res.json({ message: "OTP sent to email" });
-});
 });
 app.post("/reset-password", (req, res) => {
   const { email, otp, newPassword } = req.body;
