@@ -170,7 +170,8 @@ app.post("/reset-password", (req, res) => {
 // ✅ ADD MEMBER API
 // ✅ ADD MEMBER API (IMPROVED)
 app.post("/add-member", upload.single("photo"), (req, res) => {
-  console.log("📥 Incoming:", req.body);
+  console.log("BODY:", req.body);
+  console.log("FILE:", req.file);
 
   const {
     family_id,
@@ -185,13 +186,18 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
     hobbies
   } = req.body;
 
+  // ✅ VALIDATION
+  if (!family_id || !name || !dob || !relation) {
+    return res.json({ message: "Please fill required fields" });
+  }
+
   if (!req.file) {
     return res.json({ message: "Photo is required" });
   }
 
   const photo = req.file.filename;
 
-  // ✅ Calculate age from DOB
+  // ✅ CALCULATE AGE FROM DOB
   const birthDate = new Date(dob);
   const today = new Date();
 
@@ -202,22 +208,20 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
     age--;
   }
 
-  if (!family_id || !name || !dob || !relation) {
-    return res.json({ message: "Please fill required fields" });
-  }
-
+  // ✅ CHECK DUPLICATE
   const checkSql = "SELECT * FROM members WHERE name = ? AND phone = ?";
 
   db.query(checkSql, [name, phone], (err, result) => {
     if (err) {
-      console.log(err);
-      return res.status(500).json({ message: "Database error" });
+      console.log("❌ Check error:", err);
+      return res.status(500).json({ message: err.message });
     }
 
     if (result.length > 0) {
       return res.json({ message: "Member already exists" });
     }
 
+    // ✅ INSERT
     const sql = `
       INSERT INTO members 
       (family_id, name, age, dob, relation, parent_id, phone, address, business_address, education, hobbies, photo)
@@ -239,82 +243,13 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
       photo
     ], (err) => {
       if (err) {
-        console.log("❌ DB ERROR:", err);
-        return res.status(500).json({ message: "Error adding member" });
+        console.log("❌ FULL DB ERROR:", err);
+        return res.status(500).json({ message: err.message });
       }
 
+      console.log("✅ Member added successfully");
       res.json({ message: "Member added successfully" });
     });
-  });
-});
-// ✅ UPDATE MEMBER API
-app.put("/update-member/:id", upload.single("photo"), (req, res) => {
-  const id = req.params.id;
-
-  const {
-    name,
-    age,
-    relation,
-    phone,
-    address,
-    business_address,
-    education,
-    hobbies
-  } = req.body;
-
-  const photo = req.file ? req.file.filename : null;
-
-  let sql;
-  let values;
-
-  if (photo) {
-    // ✅ IF NEW PHOTO PROVIDED
-    sql = `
-      UPDATE members 
-      SET name=?, age=?, relation=?, phone=?, address=?, business_address=?, education=?, hobbies=?, photo=?
-      WHERE id=?
-    `;
-
-    values = [
-      name,
-      age,
-      relation,
-      phone,
-      address,
-      business_address,
-      education,
-      hobbies,
-      photo,
-      id
-    ];
-  } else {
-    // ✅ KEEP OLD PHOTO
-    sql = `
-      UPDATE members 
-      SET name=?, age=?, relation=?, phone=?, address=?, business_address=?, education=?, hobbies=?
-      WHERE id=?
-    `;
-
-    values = [
-      name,
-      age,
-      relation,
-      phone,
-      address,
-      business_address,
-      education,
-      hobbies,
-      id
-    ];
-  }
-
-  db.query(sql, values, (err) => {
-    if (err) {
-      console.log("❌ Update error:", err);
-      return res.json({ message: "Update failed" });
-    }
-
-    res.json({ message: "Member updated successfully" });
   });
 });
 // ✅ GET MEMBERS API
