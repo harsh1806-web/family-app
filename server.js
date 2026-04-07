@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
    
     user: "a73fd9001@smtp-brevo.com",
    
-    pass: "xsmtpsib-7fa9c7a59f74517ec40ae03370aeff39b913b8a95115364781f9c81c4761ccd9-wXeA86QqRu0AmPyL"
+    pass: process.env.EMAIL_PASS
   }
 
 });
