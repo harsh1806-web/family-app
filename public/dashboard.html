@@ -185,49 +185,43 @@ function loadMembers() {
   fetch(`/members/${user.id}`)
     .then(res => res.json())
     .then(data => {
+      console.log("DATA:", data);
 
       function buildTree(parentId) {
-        html += `
-  <li style="margin-bottom:15px;">
-    
-    <img 
-      src="${m.photo}" 
-      width="60" 
-      style="border-radius:50%; cursor:pointer"
-      onclick="showPhoto('${m.photo}')"
-    /><br>
+        let html = "<ul>";   // ✅ IMPORTANT FIX
 
-    <b>${m.name}</b><br>
-    Age: ${m.age}<br>
-    DOB: ${m.dob || "N/A"}<br>
-    Relation: ${m.relation}<br>
+        data
+          .filter(m => m.parent_id == parentId)
+          .forEach(m => {
+            html += `
+<li>
+  <img src="${m.photo}" 
+       width="60" 
+       style="border-radius:50%; cursor:pointer"
+       onclick="showPhoto('${m.photo}')"/>
 
-    <button onclick="editMember(
-      ${m.id}, 
-      '${m.name}', 
-      '${m.age}', 
-      '${m.relation}', 
-      '${m.phone}', 
-      '${m.address}', 
-      '${m.business_address}', 
-      '${m.education}', 
-      '${m.hobbies}'
-    )">
-      ✏️ Edit
-    </button>
+  <b>${m.name}</b><br>
+  Age: ${m.age}<br>
+  DOB: ${m.dob || "N/A"}<br>
+  Relation: ${m.relation}<br>
 
-    <button onclick="deleteMember(${m.id})">
-      🗑 Delete
-    </button>
+  <button onclick="editMember(${m.id}, '${m.name}', '${m.age}', '${m.relation}', '${m.phone}', '${m.address}', '${m.business_address}', '${m.education}', '${m.hobbies}')">
+    ✏️ Edit
+  </button>
 
-    ${buildTree(m.id)}
-  </li>
+  ${buildTree(m.id)}
+</li>
 `;
+          });
+
         html += "</ul>";
         return html;
       }
 
       document.getElementById("members").innerHTML = buildTree(0);
+    })
+    .catch(err => {
+      console.log("ERROR:", err);
     });
 }
 
