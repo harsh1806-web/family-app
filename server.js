@@ -119,7 +119,7 @@ app.post("/forgot-password", async (req, res) => {
       {
         sender: {
           name: "Family App",
-          email: "harshsanghavi07@gmail.com"
+          email: "directory.sanghavifamily@gmail.com"
         },
         to: [
           {
