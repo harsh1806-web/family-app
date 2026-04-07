@@ -1,5 +1,6 @@
 const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");const axios = require("axios");
+const CloudinaryStorage = require("multer-storage-cloudinary").CloudinaryStorage;
+const axios = require("axios");
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
