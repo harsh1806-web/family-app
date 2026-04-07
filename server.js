@@ -175,7 +175,6 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
   const {
     family_id,
     name,
-    age,
     dob,
     relation,
     parent_id,
@@ -186,24 +185,32 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
     hobbies
   } = req.body;
 
-  // ✅ CHECK PHOTO
   if (!req.file) {
     return res.json({ message: "Photo is required" });
   }
 
-  const photo = req.file ? req.file.filename : null;
+  const photo = req.file.filename;
 
-  // ✅ STEP A: VALIDATION
-  if (!family_id || !name || !age || !relation) {
+  // ✅ Calculate age from DOB
+  const birthDate = new Date(dob);
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  if (!family_id || !name || !dob || !relation) {
     return res.json({ message: "Please fill required fields" });
   }
 
-  // ✅ STEP B: CHECK DUPLICATE
   const checkSql = "SELECT * FROM members WHERE name = ? AND phone = ?";
 
   db.query(checkSql, [name, phone], (err, result) => {
     if (err) {
-      console.log("❌ Check error:", err);
+      console.log(err);
       return res.status(500).json({ message: "Database error" });
     }
 
@@ -211,17 +218,17 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
       return res.json({ message: "Member already exists" });
     }
 
-    // ✅ STEP C: INSERT
     const sql = `
       INSERT INTO members 
       (family_id, name, age, dob, relation, parent_id, phone, address, business_address, education, hobbies, photo)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(sql, [
       family_id,
       name,
       age,
+      dob,
       relation,
       parent_id,
       phone,
@@ -230,13 +237,12 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
       education,
       hobbies,
       photo
-    ], (err, result) => {
+    ], (err) => {
       if (err) {
         console.log("❌ DB ERROR:", err);
         return res.status(500).json({ message: "Error adding member" });
       }
 
-      console.log("✅ Member added");
       res.json({ message: "Member added successfully" });
     });
   });
