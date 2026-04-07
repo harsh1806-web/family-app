@@ -262,9 +262,24 @@ function addMember(button) {
 
   const formData = new FormData();
 
+  // 🔥 DOB + AGE CALCULATION
+  const dob = document.getElementById("dob").value;
+
+  const birthDate = new Date(dob);
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  // 🔥 ADD DATA
   formData.append("family_id", user.id);
   formData.append("name", document.getElementById("name").value);
-  formData.append("age", document.getElementById("age").value);
+  formData.append("age", age);
+  formData.append("dob", dob);
   formData.append("relation", document.getElementById("relation").value);
   formData.append("parent_id", document.getElementById("parent").value);
   formData.append("phone", document.getElementById("phone").value);
@@ -273,7 +288,7 @@ function addMember(button) {
   formData.append("education", document.getElementById("education").value);
   formData.append("hobbies", document.getElementById("hobbies").value);
 
-  // ✅ ADD PHOTO
+  // 🔥 PHOTO
   const file = document.getElementById("photo").files[0];
   if (file) {
     formData.append("photo", file);
@@ -287,7 +302,7 @@ function addMember(button) {
 
   fetch(url, {
     method: method,
-    body: formData   // ❌ NO JSON, ONLY formData
+    body: formData
   })
   .then(res => res.json())
   .then(data => {
@@ -309,18 +324,9 @@ function addMember(button) {
 
     button.disabled = false;
     button.innerText = "Add";
-  
-
-    loadMembers();
-  })
-  .catch(err => {
-    console.log(err);
-    alert("Error adding member");
-
-    button.disabled = false;
-    button.innerText = "Add";
   });
-  const dob = document.getElementById("dob").value;
+}
+  
 
 // calculate age again before sending
 const birthDate = new Date(dob);
@@ -332,7 +338,7 @@ const m = today.getMonth() - birthDate.getMonth();
 if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
   age--;
 }
-}
+
     
 
 function loadMembers() {
@@ -357,10 +363,13 @@ function loadMembers() {
 />
   
   <li>
-    <b>${m.name}</b><br>
-    Age: ${m.age}<br>
-    DOB: ${m.dob}<br>
-    Relation: ${m.relation}<br>
+  <img src="/uploads/${m.photo}" width="60" style="border-radius:50%; cursor:pointer"
+       onclick="showPhoto('/uploads/${m.photo}')"/>
+
+  <b>${m.name}</b><br>
+  Age: ${m.age}<br>
+  DOB: ${m.dob}<br>
+  Relation: ${m.relation}<br>
 
     <button onclick="editMember(${m.id}, '${m.name}', '${m.age}', '${m.relation}', '${m.phone}', '${m.address}', '${m.business_address}', '${m.education}', '${m.hobbies}')">
       ✏️ Edit
