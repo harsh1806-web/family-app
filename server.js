@@ -23,7 +23,7 @@ const storage = new CloudinaryStorage({
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 // ✅ Middleware
 app.use(cors());
