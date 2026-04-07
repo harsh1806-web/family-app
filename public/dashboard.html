@@ -266,7 +266,23 @@ document.getElementById("dob").addEventListener("change", function () {
 
   document.getElementById("calculatedAge").innerText = "Age: " + age;
 });
+// ✅ EDIT MEMBER FUNCTION (GLOBAL)
+function editMember(id, name, age, relation, phone, address, business, education, hobbies) {
 
+  document.getElementById("name").value = name;
+  document.getElementById("relation").value = relation;
+  document.getElementById("phone").value = phone;
+  document.getElementById("address").value = address;
+  document.getElementById("business").value = business;
+  document.getElementById("education").value = education;
+  document.getElementById("hobbies").value = hobbies;
+
+  // set edit mode
+  window.editingId = id;
+
+  // switch to form
+  showSection("add");
+}
 
 </script>
 
