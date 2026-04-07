@@ -187,22 +187,42 @@ function loadMembers() {
     .then(data => {
 
       function buildTree(parentId) {
-        let html = "<ul>";
+        html += `
+  <li style="margin-bottom:15px;">
+    
+    <img 
+      src="${m.photo}" 
+      width="60" 
+      style="border-radius:50%; cursor:pointer"
+      onclick="showPhoto('${m.photo}')"
+    /><br>
 
-        data.filter(m => m.parent_id == parentId).forEach(m => {
-          html += `
-          <li>
-            <img src=${m.photo}" width="50" style="border-radius:50%">
-            <b>${m.name}</b><br>
-            Age: ${m.age}<br>
-            DOB: ${m.dob}<br>
+    <b>${m.name}</b><br>
+    Age: ${m.age}<br>
+    DOB: ${m.dob || "N/A"}<br>
+    Relation: ${m.relation}<br>
 
-            <button onclick="deleteMember(${m.id})">Delete</button>
+    <button onclick="editMember(
+      ${m.id}, 
+      '${m.name}', 
+      '${m.age}', 
+      '${m.relation}', 
+      '${m.phone}', 
+      '${m.address}', 
+      '${m.business_address}', 
+      '${m.education}', 
+      '${m.hobbies}'
+    )">
+      ✏️ Edit
+    </button>
 
-            ${buildTree(m.id)}
-          </li>`;
-        });
+    <button onclick="deleteMember(${m.id})">
+      🗑 Delete
+    </button>
 
+    ${buildTree(m.id)}
+  </li>
+`;
         html += "</ul>";
         return html;
       }
@@ -213,9 +233,16 @@ function loadMembers() {
 
 // ✅ DELETE
 function deleteMember(id) {
-  fetch(`/delete-member/${id}`, { method: "DELETE" })
-    .then(res => res.json())
-    .then(() => loadMembers());
+  if (!confirm("Delete this member?")) return;
+
+  fetch(`/delete-member/${id}`, {
+    method: "DELETE"
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message);
+    loadMembers();
+  });
 }
 
 // ✅ LOAD PARENTS
