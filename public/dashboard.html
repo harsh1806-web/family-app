@@ -188,7 +188,8 @@ li {
     <h3>Add Member</h3>
 
     <input id="name" placeholder="Name / नाम">
-<input id="age" placeholder="Age / उम्र">
+<input type="date" id="dob">
+<p id="calculatedAge" style="font-size:14px; color:gray;"></p>
 
 <select id="relation">
   <option>Head / मुखिया</option>
@@ -319,6 +320,18 @@ function addMember(button) {
     button.disabled = false;
     button.innerText = "Add";
   });
+  const dob = document.getElementById("dob").value;
+
+// calculate age again before sending
+const birthDate = new Date(dob);
+const today = new Date();
+
+let age = today.getFullYear() - birthDate.getFullYear();
+const m = today.getMonth() - birthDate.getMonth();
+
+if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+  age--;
+}
 }
     
 
@@ -336,8 +349,18 @@ function loadMembers() {
             html += `
   <li>
     
-  <img src="/uploads/${m.photo}" width="60" style="border-radius:50%"><br>
-  <b>${m.name}</b> (${m.relation}) <br>
+  <img 
+  src="/uploads/${m.photo}" 
+  width="60" 
+  style="border-radius:50%; cursor:pointer"
+  onclick="showPhoto('/uploads/${m.photo}')"
+/>
+  
+  <li>
+    <b>${m.name}</b><br>
+    Age: ${m.age}<br>
+    DOB: ${m.dob}<br>
+    Relation: ${m.relation}<br>
 
     <button onclick="editMember(${m.id}, '${m.name}', '${m.age}', '${m.relation}', '${m.phone}', '${m.address}', '${m.business_address}', '${m.education}', '${m.hobbies}')">
       ✏️ Edit
@@ -384,7 +407,38 @@ function editMember(id, name, age, relation, phone, address, business, education
 
   showSection("add");
 }
-</script>
+function showPhoto(src) {
+  document.getElementById("photoModal").style.display = "flex";
+  document.getElementById("modalImg").src = src;
+}
 
+document.getElementById("photoModal").onclick = () => {
+  document.getElementById("photoModal").style.display = "none";
+};
+document.getElementById("dob").addEventListener("change", function () {
+  const dob = new Date(this.value);
+  const today = new Date();
+
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+
+  document.getElementById("calculatedAge").innerText = "Age: " + age;
+});
+</script>
+<div id="photoModal" style="
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+">
+  <img id="modalImg" style="max-width:90%; max-height:90%; border-radius:10px;">
+</div>
 </body>
 </html>

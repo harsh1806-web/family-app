@@ -176,6 +176,7 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
     family_id,
     name,
     age,
+    dob,
     relation,
     parent_id,
     phone,
@@ -190,7 +191,7 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
     return res.json({ message: "Photo is required" });
   }
 
-  const photo = req.file.filename;
+  const photo = req.file ? req.file.filename : null;
 
   // ✅ STEP A: VALIDATION
   if (!family_id || !name || !age || !relation) {
@@ -213,7 +214,7 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
     // ✅ STEP C: INSERT
     const sql = `
       INSERT INTO members 
-      (family_id, name, age, relation, parent_id, phone, address, business_address, education, hobbies)
+      (family_id, name, age, dob, relation, parent_id, phone, address, business_address, education, hobbies, photo)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
@@ -227,7 +228,8 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
       address,
       business_address,
       education,
-      hobbies
+      hobbies,
+      photo
     ], (err, result) => {
       if (err) {
         console.log("❌ DB ERROR:", err);
@@ -240,7 +242,7 @@ app.post("/add-member", upload.single("photo"), (req, res) => {
   });
 });
 // ✅ UPDATE MEMBER API
-app.put("/update-member/:id", (req, res) => {
+app.put("/update-member/:id", upload.single("photo"), (req, res) => {
   const id = req.params.id;
 
   const {
@@ -254,23 +256,53 @@ app.put("/update-member/:id", (req, res) => {
     hobbies
   } = req.body;
 
-  const sql = `
-    UPDATE members 
-    SET name=?, age=?, relation=?, phone=?, address=?, business_address=?, education=?, hobbies=?
-    WHERE id=?
-  `;
+  const photo = req.file ? req.file.filename : null;
 
-  db.query(sql, [
-    name,
-    age,
-    relation,
-    phone,
-    address,
-    business_address,
-    education,
-    hobbies,
-    id
-  ], (err) => {
+  let sql;
+  let values;
+
+  if (photo) {
+    // ✅ IF NEW PHOTO PROVIDED
+    sql = `
+      UPDATE members 
+      SET name=?, age=?, relation=?, phone=?, address=?, business_address=?, education=?, hobbies=?, photo=?
+      WHERE id=?
+    `;
+
+    values = [
+      name,
+      age,
+      relation,
+      phone,
+      address,
+      business_address,
+      education,
+      hobbies,
+      photo,
+      id
+    ];
+  } else {
+    // ✅ KEEP OLD PHOTO
+    sql = `
+      UPDATE members 
+      SET name=?, age=?, relation=?, phone=?, address=?, business_address=?, education=?, hobbies=?
+      WHERE id=?
+    `;
+
+    values = [
+      name,
+      age,
+      relation,
+      phone,
+      address,
+      business_address,
+      education,
+      hobbies,
+      id
+    ];
+  }
+
+  db.query(sql, values, (err) => {
     if (err) {
       console.log("❌ Update error:", err);
       return res.json({ message: "Update failed" });
