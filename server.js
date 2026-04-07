@@ -93,7 +93,7 @@ app.post("/login", (req, res) => {
 });   
 
 
-let otpStore = {};
+
 app.post("/forgot-password", async (req, res) => {
   const { email } = req.body;
 
