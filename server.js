@@ -3,20 +3,7 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
-
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("❌ SMTP ERROR:", error);
-  } else {
-    console.log("✅ SMTP READY");
-  }
-});
-
-
 const app = express();
-
-
 
 // ✅ Middleware
 app.use(cors());
